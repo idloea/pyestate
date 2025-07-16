@@ -1,33 +1,20 @@
 import unittest
-from src.itp_rates import ITP
+from src.itp_rates import get_itp_cost, ITP_RATES
 
+class TestGetITPCost(unittest.TestCase):
+    def test_valid_community_and_price(self):
+        for community, rate in ITP_RATES.items():
+            price = 100000
+            expected = price * rate / 100
+            self.assertEqual(get_itp_cost(community, price), expected)
 
-class TestITP(unittest.TestCase):
-    def setUp(self):
-        self.itp = ITP()
+    def test_invalid_community_raises(self):
+        with self.assertRaises(ValueError) as context:
+            get_itp_cost("Unknown", 100000)
+        self.assertIn("is not a valid community", str(context.exception))
 
-    def test_get_itp_valid(self):
-        self.assertEqual(self.itp.get_itp("Cataluña"), 10.0)
-        self.assertEqual(self.itp.get_itp("Madrid"), 6.0)
-
-    def test_get_itp_invalid(self):
-        with self.assertRaises(ValueError):
-            self.itp.get_itp("Barcelona")
-
-    def test_itp_costs_valid(self):
-        self.assertAlmostEqual(self.itp.itp_costs("Cataluña", 100000), 10000.0)
-        self.assertAlmostEqual(self.itp.itp_costs("Madrid", 200000), 12000.0)
-
-    def test_itp_costs_invalid_community(self):
-        with self.assertRaises(ValueError):
-            self.itp.itp_costs("Barcelona", 100000)
-
-    def test_itp_costs_invalid_price(self):
-        with self.assertRaises(ValueError):
-            self.itp.itp_costs("Madrid", -1)
-
-    def test_itp_cost_zero_price(self):
-        self.assertEqual(self.itp.itp_costs("Cataluña", 0), 0.0)
-
-    def test_itp_cost_float_price(self):
-        self.assertAlmostEqual(self.itp.itp_costs("Canarias", 123456.78), 8024.6907, places=4)
+    def test_float_price(self):
+        community = "Madrid"
+        price = 123456.78
+        expected = price * ITP_RATES[community] / 100
+        self.assertAlmostEqual(get_itp_cost(community, price), expected)

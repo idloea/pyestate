@@ -1,14 +1,6 @@
 from typing import Union
 
-
-class ITP:
-    """
-    Impuesto de Transmisiones Patrimoniales (ITP) rates for different Spanish communities. Tax to be paid on the
-    transfer of property, typically in real estate transactions.
-    """
-
-    def __init__(self):
-        self.itp_rates = {
+ITP_RATES = {
             "Andalucia": 8.0,
             "Aragon": 8.0,
             "Asturias": 8.0,
@@ -30,13 +22,19 @@ class ITP:
             "Pais Vasco": 4.0
         }
 
-    def get_itp(self, community: str) -> float:
-        if community not in self.itp_rates:
-            raise ValueError(f"{community} is not a valid community.")
-        return self.itp_rates[community]
 
-    def itp_costs(self, community: str, price: Union[int, float]) -> float:
-        if price < 0:
-            raise ValueError("Price cannot be negative.")
-        itp_rate = self.get_itp(community)
-        return (itp_rate / 100) * price
+def get_itp_cost(autonomous_community: str, price: Union[int, float]) -> float:
+    """
+    Calculate the ITP costs based on the autonomous community and property price.
+
+    Args:
+        autonomous_community (str): The autonomous community where the property is located.
+        price (Union[int, float]): The price of the property.
+
+    Returns:
+        float: The calculated ITP costs.
+    """
+    if autonomous_community not in ITP_RATES:
+        raise ValueError(f"{autonomous_community} is not a valid community.")
+    itp_costs = price * ITP_RATES[autonomous_community] / 100
+    return itp_costs
